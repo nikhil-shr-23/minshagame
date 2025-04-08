@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>wakey</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #87CEEB;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            touch-action: none;
+        }
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 100%;
+            max-height: 600px;
+            background-color: #FFFFFF;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        #bedroom {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: #B19CD9;
+        }
+        #bed {
+            position: absolute;
+            width: 50%;
+            height: 20%;
+            bottom: 25%;
+            left: 25%;
+            background-color: #8B4513;
+            border-radius: 10px;
+        }
+        #mattress {
+            position: absolute;
+            width: 48%;
+            height: 5%;
+            bottom: 25%;
+            left: 26%;
+            background-color: #FFF;
+            border-radius: 5px;
+        }
+        #pillow {
+            position: absolute;
+            width: 10%;
+            height: 5%;
+            bottom: 30%;
+            left: 65%;
+            background-color: #EFEFEF;
+            border-radius: 5px;
+        }
+        #character {
+            position: absolute;
+            width: 40%;
+            height: 40%;
+            bottom: 30%;
+            left: 30%;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: transform 0.3s;
+        }
+        #awake-character {
+            position: absolute;
+            width: 40%;
+            height: 40%;
+            bottom: 30%;
+            left: 30%;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: none;
+        }
+        #ducky {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            bottom: 15%;
+            left: 15%;
+            cursor: pointer;
+            user-select: none;
+            z-index: 1000;
+        }
+        #score {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            color: #333;
+        }
+        #start-message {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 2000;
+        }
+        #start-message h1 {
+            font-size: 48px;
+            color: #FF69B4;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        #start-button {
+            background-color: #FF69B4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        #start-button:hover {
+            background-color: #FF1493;
+            transform: scale(1.1);
+        }
+        #win-message {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 2000;
+        }
+        #win-message h1 {
+            font-size: 48px;
+            color: #FF69B4;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        #win-message p {
+            font-size: 24px;
+            color: #333;
+            text-align: center;
+        }
+        #hearts {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1500;
+            display: none;
+        }
+        .heart {
+            position: absolute;
+            font-size: 20px;
+            color: #FF69B4;
+            animation: float 4s ease-in infinite;
+        }
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-600px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        @media (max-height: 600px) or (max-width: 800px) {
+            #game-container {
+                width: 100%;
+                height: 100%;
+                max-width: none;
+                max-height: none;
+                border-radius: 0;
+            }
+            #start-message h1, #win-message h1 {
+                font-size: 32px;
+            }
+            #win-message p {
+                font-size: 18px;
+            }
+            #score {
+                font-size: 18px;
+            }
+            #ducky {
+                width: 60px;
+                height: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="bedroom">
+            <div id="bed"></div>
+            <div id="mattress"></div>
+            <div id="pillow"></div>
+            <div id="character"></div>
+            <div id="awake-character"></div>
+        </div>
+        <div id="ducky"></div>
+        <div id="score">Dishoom: 0 / 10</div>
+        <div id="start-message">
+            <h1>WAKE HIM UP!</h1>
+            <button id="start-button">Start Game</button>
+        </div>
+        <div id="win-message">
+            <h1>I'm sorry gunnu</h1>
+            <p>Maaf karde ❤️</p>
+        </div>
+        <div id="hearts"></div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const ducky = document.getElementById('ducky');
+        const character = document.getElementById('character');
+        const awakeCharacter = document.getElementById('awake-character');
+        const scoreDisplay = document.getElementById('score');
+        const startMessage = document.getElementById('start-message');
+        const startButton = document.getElementById('start-button');
+        const winMessage = document.getElementById('win-message');
+        const heartsContainer = document.getElementById('hearts');
+        
+        // Game variables
+        let score = 0;
+        let isDragging = false;
+        let offsetX, offsetY;
+        let isGameWon = false;
+        let gameStarted = false;
+        let lastTapTime = 0;
+        
+        // Preload and set images - Make sure these file names match your actual files
+        const stickmanImage = 'laid.png'; 
+        const awakeStickmanImage = 'yayy.png'; // Your new image for when he wakes up
+        const duckImage = 'duckky.png';
+        
+        // Sets the background images
+        character.style.backgroundImage = `url('${stickmanImage}')`;
+        awakeCharacter.style.backgroundImage = `url('${awakeStickmanImage}')`;
+        ducky.style.backgroundImage = `url('${duckImage}')`;
+        
+        // Start button click event
+        startButton.addEventListener('click', startGame);
+        
+        function startGame() {
+            startMessage.style.display = 'none';
+            gameStarted = true;
+        }
+        
+        // Make the duck draggable - Mouse events
+        ducky.addEventListener('mousedown', (e) => {
+            if (!gameStarted || isGameWon) return;
+            e.preventDefault();
+            isDragging = true;
+            offsetX = e.clientX - ducky.getBoundingClientRect().left;
+            offsetY = e.clientY - ducky.getBoundingClientRect().top;
+            ducky.style.cursor = 'grabbing';
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const gameContainer = document.getElementById('game-container');
+            const containerRect = gameContainer.getBoundingClientRect();
+            
+            let newX = e.clientX - containerRect.left - offsetX;
+            let newY = e.clientY - containerRect.top - offsetY;
+            
+            // Constrain duck within the game container
+            newX = Math.max(0, Math.min(containerRect.width - ducky.offsetWidth, newX));
+            newY = Math.max(0, Math.min(containerRect.height - ducky.offsetHeight, newY));
+            
+            ducky.style.left = newX + 'px';
+            ducky.style.top = newY + 'px';
+            
+            // Check for collision while dragging
+            checkAndProcessCollision();
+        });
+        
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            ducky.style.cursor = 'pointer';
+        });
+        
+        // Mobile touch support
+        ducky.addEventListener('touchstart', (e) => {
+            if (!gameStarted || isGameWon) return;
+            e.preventDefault();
+            isDragging = true;
+            const touch = e.touches[0];
+            offsetX = touch.clientX - ducky.getBoundingClientRect().left;
+            offsetY = touch.clientY - ducky.getBoundingClientRect().top;
+        });
+        
+        document.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            const touch = e.touches[0];
+            const gameContainer = document.getElementById('game-container');
+            const containerRect = gameContainer.getBoundingClientRect();
+            
+            let newX = touch.clientX - containerRect.left - offsetX;
+            let newY = touch.clientY - containerRect.top - offsetY;
+            
+            // Constrain duck within the game container
+            newX = Math.max(0, Math.min(containerRect.width - ducky.offsetWidth, newX));
+            newY = Math.max(0, Math.min(containerRect.height - ducky.offsetHeight, newY));
+            
+            ducky.style.left = newX + 'px';
+            ducky.style.top = newY + 'px';
+            
+            // Check for collision while dragging
+            checkAndProcessCollision();
+        });
+        
+        document.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+        
+        // Check for collision between duck and character
+        function checkCollision() {
+            const duckyRect = ducky.getBoundingClientRect();
+            const characterRect = character.getBoundingClientRect();
+            
+            return !(
+                duckyRect.right < characterRect.left ||
+                duckyRect.left > characterRect.right ||
+                duckyRect.bottom < characterRect.top ||
+                duckyRect.top > characterRect.bottom
+            );
+        }
+        
+        // Check collision and process hit with rate limiting
+        function checkAndProcessCollision() {
+            const now = Date.now();
+            if (checkCollision() && now - lastTapTime > 300) { // 300ms cooldown between hits
+                hitCharacter();
+                lastTapTime = now;
+            }
+        }
+        
+        // Tap event for hitting the character
+        ducky.addEventListener('click', (e) => {
+            if (!gameStarted || isGameWon) return;
+            e.preventDefault();
+            checkAndProcessCollision();
+        });
+        
+        function hitCharacter() {
+            if (isGameWon) return;
+            
+            score++;
+            scoreDisplay.textContent = `Dishoom: ${score} / 10`;
+            
+            // Shake the character
+            character.style.transform = 'translateX(5px)';
+            setTimeout(() => {
+                character.style.transform = 'translateX(-5px)';
+                setTimeout(() => {
+                    character.style.transform = 'translateX(0)';
+                }, 100);
+            }, 100);
+            
+            // Check if game is won
+            if (score >= 10) {
+                winGame();
+            }
+        }
+        
+        function winGame() {
+            isGameWon = true;
+            
+            // Show awake character and hide sleeping character
+            character.style.display = 'none';
+            awakeCharacter.style.display = 'block';
+            
+            // Show win message after a short delay
+            setTimeout(() => {
+                winMessage.style.display = 'flex';
+                heartsContainer.style.display = 'block';
+                createHearts();
+            }, 1000);
+        }
+        
+        function createHearts() {
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.classList.add('heart');
+                    heart.textContent = '❤️';
+                    heart.style.left = Math.random() * 100 + '%';
+                    heart.style.top = '100%';
+                    heart.style.animationDelay = Math.random() * 2 + 's';
+                    heartsContainer.appendChild(heart);
+                    
+                    // Remove heart after animation completes
+                    setTimeout(() => {
+                        heart.remove();
+                    }, 4000);
+                }, i * 100);
+            }
+        }
+        
+        // Handle window resize to ensure responsive design
+        window.addEventListener('resize', function() {
+            if (isDragging) {
+                isDragging = false;
+            }
+        });
+        
+        // Preload images to prevent flashing
+        function preloadImages() {
+            const imageUrls = [stickmanImage, awakeStickmanImage, duckImage];
+            for (const url of imageUrls) {
+                const img = new Image();
+                img.src = url;
+            }
+        }
+        
+        // Run preload on page load
+        preloadImages();
+    </script>
+</body>
+</html>
